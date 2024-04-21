@@ -15,6 +15,7 @@ This repository contains the source code and setup instructions for an Air Quali
   - [Scripts](#scripts)
   - [Docker Compose](#docker-compose)
   - [API Documentation](#api-documentation)
+  - [What I Would Improve:](#what-i-would-improve)
 
 ## Prerequisites
 
@@ -106,3 +107,10 @@ docker-compose up mongodb
 ## API Documentation
 
 API documentation will be available at \`http://localhost:4000/api/docs` when the application is running.
+
+## What I Would Improve:
+
+Given more time, there are several aspects I would focus on enhancing:
+1- Implementing more robust caching strategies to optimise data retrieval from the IQAir provider as explained in docs analyses section.
+2- Refactoring and cleaning up the codebase to enhance readability, maintainability, and overall quality.
+3- Implementing a comprehensive testing framework to ensure code reliability and identify potential issues.
