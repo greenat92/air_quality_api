@@ -4,12 +4,6 @@ declare global {
       APP_ENV: 'dev' | 'staging' | 'prod' | 'local' | 'test';
       // test types
       TEST_TYPE: 'SMOKE' | 'E2E' | 'UNIT';
-      // mongodatabase uri
-      MONGO_DB_URI: string;
-
-      // air qouality vars
-      AIR_QUALITY_URL: string;
-      AIR_QUALITY_API_KEY: string;
 
       // performance measuring
       PERFORMANCE_MEASURING_ENABLED: 'true' | 'false';
