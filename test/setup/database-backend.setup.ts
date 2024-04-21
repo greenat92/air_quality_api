@@ -6,18 +6,12 @@ import {
 } from '../../src/air-quality/air-quality.entity';
 import { DatabaseHelper } from '../helpers/database.helper';
 
-// import {
-//   AirQualityRecord,
-//   AirQualityRecordSchema,
-// } from 'src/air-quality/air-quality.entity';
-// import { DatabaseHelper } from 'test/helpers/database.helper';
-
 export async function setupDatabaseForBackendTesting(): Promise<void> {
   console.log('Setup of test-database for backend started');
 
   // run default setup
 
-  //   // Initialize and set moduleRef globally
+  // Initialize and set moduleRef globally
   const initializeModuleRef = async () => {
     if (!(global as any).moduleRef) {
       (global as any).moduleRef = await Test.createTestingModule({
