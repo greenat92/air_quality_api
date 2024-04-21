@@ -13,7 +13,6 @@ import {
 } from './air-quality.entity';
 import { AirQualityQueryDto, CityQueryDto } from './air-quality.dto';
 import { IAirQuality, IAirQualityResponse } from './air-quality.interface';
-// import { CacheService } from '../shared/services/cache/cache.service';
 import { CustomLogger } from '../shared/custom-logger/custom-logger.service';
 import { getAirQualityLevel } from '../shared/helpers/air-quality-level.helper';
 import { IiqirProviderService } from '../shared/services/iqair-provider/iqair-provider-service.interface';
@@ -23,7 +22,6 @@ export class AirQualityService {
   constructor(
     @InjectModel(AirQualityRecord.name)
     private readonly airQualityRecordModel: Model<AirQualityRecordDocument>,
-    // private _cacheService: CacheService,
     @Inject(IiqirProviderService)
     private readonly _IQAirProviderService: IiqirProviderService,
   ) {}
@@ -64,10 +62,9 @@ export class AirQualityService {
       this.saveAirQualityRecord.name,
     );
     // check if the record is exist in database before adding
-    // todo if we go with cron job every hour not need to check the record
     const existingRecord = await this.findOneByTsAndCity(
       airQualityData.ts,
-      airQualityData.city, // wrong should be replace by city
+      airQualityData.city,
     );
 
     if (!existingRecord) {
@@ -123,7 +120,7 @@ export class AirQualityService {
       this.getMostPollutedZoneTime.name,
     );
     try {
-      // based on a coordinations for a given zone get the time where is the most polluted
+      // based on a city Name that already stored in our database we can  get the time where is the most polluted
       const pollutedZoneTime: AirQualityRecordDocument[] =
         await this.airQualityRecordModel
           .find()
@@ -141,6 +138,7 @@ export class AirQualityService {
         pollutedZoneTime.length > 0
           ? pollutedZoneTime[0]
           : {
+              // default response
               aqius: -1,
               ts: '-',
               city: '-',
@@ -176,6 +174,10 @@ export class AirQualityService {
     }
   }
 
+  /*
+  this is used for the cron job and if we go with a cron job of every 
+  minute so it's needed to use a cache while we have the city name and ts time
+  */
   async getAQIDataForNearestCityForCronJob(
     airQualityQueryDto: AirQualityQueryDto,
   ): Promise<any> {
@@ -184,7 +186,7 @@ export class AirQualityService {
       this.getAQIDataForNearestCity.name,
     );
     try {
-      // todo: get cache data from cache
+      // todo: get cache data from cache in case of less then one hour cron job
       const res =
         await this._IQAirProviderService.getAirQualityDataFromIQAirProvider(
           airQualityQueryDto,

@@ -51,7 +51,7 @@ export class AirQualityRecord {
       default: 'Point',
     },
     coordinates: {
-      type: [Number], // Array of Numbers
+      type: [Number],
     },
   })
   location: {
