@@ -1,10 +1,75 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import {
+  DynamicModule,
+  Module,
+  NestModule,
+  MiddlewareConsumer,
+  Global,
+} from '@nestjs/common';
+import { APP_PIPE } from '@nestjs/core';
+import { MongooseModule } from '@nestjs/mongoose';
 
-@Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
-})
-export class AppModule {}
+import { CustomLoggerModule } from './shared/custom-logger/custom-logger.module';
+import { ParamValidationPipe } from './shared/custom-pipes/params-validation.pipe';
+import { AirQualityModule } from './air-quality/air-quality.module';
+import { AirQualityJobModule } from './cron-job/air-quality-cron-job.module';
+import { CacheModule } from './shared/services/cache/cache.module';
+import { MiddlewareModule } from './middleware/middleware.module';
+import { AxiosModule } from './shared/services/axios/axios.module';
+import { ApiKeyMiddleware } from './middleware/api-key.middleware';
+import { IQAirProviderModule } from './shared/services/iqair-provider/iqair-provider.module';
+import { IQAirProviderService } from './shared/services/iqair-provider/iqair-provider.service';
+import { IiqirProviderService } from './shared/services/iqair-provider/iqair-provider-service.interface';
+import { ConfigModule } from '@nestjs/config';
+
+// global module -> all DI mappings specified here are available in all modules
+@Global()
+@Module({})
+export class AppModule implements NestModule {
+  static withMongoose(uri: string): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [
+        // Core Modules
+        CustomLoggerModule,
+        ConfigModule.forRoot({
+          isGlobal: true, // make ConfigModule global
+          envFilePath: ['.env', `.env.${process.env.NODE_ENV}`], // load environment file based on NODE_ENV
+          expandVariables: true, // expand variables in .env file
+        }),
+
+        // Feature Modules
+        AirQualityModule,
+        AirQualityJobModule,
+        CacheModule,
+        MiddlewareModule,
+        AxiosModule,
+        IQAirProviderModule,
+
+        // Mongoose Configuration
+        MongooseModule.forRoot(uri),
+      ],
+      controllers: [],
+      providers: [
+        // define DI mappings (subject to override, e.g. during testing)
+        // make nestjs logger available via DI in all modules
+        CustomLoggerModule,
+        {
+          provide: APP_PIPE,
+          useClass: ParamValidationPipe,
+        },
+        {
+          provide: IiqirProviderService,
+          useClass: IQAirProviderService,
+        },
+      ],
+      exports: [
+        // make DI mappings available to all modules
+        IiqirProviderService,
+      ],
+    };
+  }
+
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(ApiKeyMiddleware).forRoutes('air-quality'); // Apply middleware to specific route
+  }
+}
