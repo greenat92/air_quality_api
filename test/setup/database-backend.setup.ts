@@ -1,10 +1,11 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
+
+import { DatabaseHelper } from '../helpers/database.helper';
 import {
   AirQualityRecord,
   AirQualityRecordSchema,
-} from '../../src/air-quality/air-quality.entity';
-import { DatabaseHelper } from '../helpers/database.helper';
+} from 'src/air-quality/air-quality.entity';
 
 export async function setupDatabaseForBackendTesting(): Promise<void> {
   console.log('Setup of test-database for backend started');
