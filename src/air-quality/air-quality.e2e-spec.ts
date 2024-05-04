@@ -16,7 +16,7 @@ const wrongKey = 'wrongKey';
 describe(`${endpoint}`, () => {
   let app: INestApplication;
   beforeAll(async () => {
-    // todo could be encapsulated in a global setupTestingModule function and used with othe testing files
+    // todo could be encapsulated in a global setupTestingModule function and used with other testing files
     const moduleRef = await Test.createTestingModule({
       imports: [
         AppModule.withMongoose(

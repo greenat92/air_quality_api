@@ -11,6 +11,8 @@ feature_not_available: returned when call requests a feature that is not availab
 too_many_requests: returned when more than 10 calls per second are made.
 
 */
+
+// todo hould be used or removed
 export enum AirQualityAPICodesEnum {
   Success = 'success',
   Fail = 'fail',

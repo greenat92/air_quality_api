@@ -5,11 +5,9 @@ import {
   MiddlewareConsumer,
   Global,
 } from '@nestjs/common';
-import { APP_PIPE } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { CustomLoggerModule } from './shared/custom-logger/custom-logger.module';
-import { ParamValidationPipe } from './shared/custom-pipes/params-validation.pipe';
 import { AirQualityModule } from './air-quality/air-quality.module';
 import { AirQualityJobModule } from './cron-job/air-quality-cron-job.module';
 import { CacheModule } from './shared/services/cache/cache.module';
@@ -53,10 +51,6 @@ export class AppModule implements NestModule {
         // define DI mappings (subject to override, e.g. during testing)
         // make nestjs logger available via DI in all modules
         CustomLoggerModule,
-        {
-          provide: APP_PIPE,
-          useClass: ParamValidationPipe,
-        },
         {
           provide: IiqirProviderService,
           useClass: IQAirProviderService,
