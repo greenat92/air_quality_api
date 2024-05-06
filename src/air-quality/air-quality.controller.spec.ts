@@ -24,20 +24,68 @@ describe('[UNIT] AirQualityController', () => {
   });
 
   describe('getAirQuality', () => {
-    it('[UNIT] should handle error and return Bad Request', async () => {
+    it('[UNIT] should return air quality data for nearest city', async () => {
+      const mockAirQualityData = {
+        result: {
+          pollution: {
+            ts: new Date(), // Ensure ts property is a Date object
+            aqius: 15,
+            mainus: 'p1',
+            aqicn: 10,
+            maincn: 'p1',
+          },
+        },
+      };
       jest
         .spyOn(airQualityService, 'getAQIDataForNearestCity')
-        .mockRejectedValue({ response: { status: HttpStatus.BAD_REQUEST } });
+        .mockResolvedValue(mockAirQualityData);
+
+      const result = await controller.getAirQuality({
+        lat: 40.7128,
+        lon: -74.006,
+      });
+
+      expect(result).toEqual(mockAirQualityData);
+    });
+
+    it('[UNIT] should handle error and return Unauthorized', async () => {
+      jest
+        .spyOn(airQualityService, 'getAQIDataForNearestCity')
+        .mockRejectedValue({ response: { status: HttpStatus.UNAUTHORIZED } });
 
       try {
         await controller.getAirQuality({ lat: 40.7128, lon: -74.006 });
       } catch (error) {
-        expect(error.response.status).toBe(HttpStatus.BAD_REQUEST);
+        expect(error.response.status).toBe(HttpStatus.UNAUTHORIZED);
       }
     });
   });
 
   describe('getMostPollutedZoneTime', () => {
+    it('[UNIT] should return most polluted zone time for a city', async () => {
+      const mockPollutionTime = {
+        result: {
+          airQualityLevel: 'Good',
+          ts: '2024-04-30T05:00:00.000Z',
+          aqius: 50,
+          mainus: 'o3',
+          city: 'Paris',
+          location: {
+            type: 'Point',
+            coordinates: [2.351666, 48.859425],
+          },
+        },
+      };
+      jest
+        .spyOn(airQualityService, 'getMostPollutedZoneTime')
+        .mockResolvedValue(mockPollutionTime);
+
+      const result = await controller.getMostPollutedZoneTime({
+        city: 'Paris',
+      });
+      expect(result).toEqual(mockPollutionTime);
+    });
+
     it('[UNIT] should handle error and return Unauthorized', async () => {
       jest
         .spyOn(airQualityService, 'getMostPollutedZoneTime')

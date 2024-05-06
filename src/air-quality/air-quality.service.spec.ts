@@ -110,7 +110,6 @@ describe('AirQualityService', () => {
         // avoiding using cache
         false,
       );
-      console.log(JSON.stringify(result));
       expect(result.result.pollution).toEqual(
         expect.objectContaining(mockResponse.pollution),
       );
