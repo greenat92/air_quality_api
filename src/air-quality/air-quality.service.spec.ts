@@ -7,7 +7,6 @@ import {
   AirQualityRecord,
   AirQualityRecordDocument,
 } from './air-quality.entity';
-import { getAirQualityLevel } from '../shared/helpers/air-quality-level.helper';
 import { Model } from 'mongoose';
 import { IiqirProviderService } from '../shared/services/iqair-provider/iqair-provider-service.interface';
 import { IReverseGeocodingService } from '../shared/services/reverse-geocoding/reverse-geocoding-service.interface';
