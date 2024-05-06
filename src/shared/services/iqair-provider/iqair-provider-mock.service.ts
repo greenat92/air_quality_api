@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
-import { AirQualityQueryDto } from 'src/air-quality/air-quality.dto';
-import { CustomLogger } from 'src/shared/custom-logger/custom-logger.service';
+import { AirQualityQueryDto } from '../../../air-quality/air-quality.dto';
+import { CustomLogger } from '../../../shared/custom-logger/custom-logger.service';
 import { IiqirProviderService } from './iqair-provider-service.interface';
 
 const data = {

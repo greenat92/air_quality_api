@@ -1,7 +1,7 @@
 import { Injectable, Inject, HttpStatus, HttpException } from '@nestjs/common';
 import { AxiosInstance, AxiosResponse } from 'axios';
-import { AirQualityQueryDto } from 'src/air-quality/air-quality.dto';
-import { CustomLogger } from 'src/shared/custom-logger/custom-logger.service';
+import { AirQualityQueryDto } from '../../../air-quality/air-quality.dto';
+import { CustomLogger } from '../../../shared/custom-logger/custom-logger.service';
 import { IiqirProviderService } from './iqair-provider-service.interface';
 
 @Injectable()

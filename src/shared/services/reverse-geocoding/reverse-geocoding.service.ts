@@ -1,9 +1,9 @@
 import { Injectable, HttpStatus, HttpException } from '@nestjs/common';
 import * as nominatim from 'nominatim-client';
 import { ILocationQueryDto } from '../../../air-quality/air-quality.dto';
-import { CustomLogger } from '@shared/custom-logger/custom-logger.service';
 import { IReverseGeocodingService } from './reverse-geocoding-service.interface';
 import { IReverseGeocodingResponse } from './reverse-geocoding-response.interface';
+import { CustomLogger } from '../../custom-logger/custom-logger.service';
 
 @Injectable()
 export class ReverseGeocodingService implements IReverseGeocodingService {

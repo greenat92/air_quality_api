@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { AirQualityService } from './air-quality.service';
 import { getModelToken } from '@nestjs/mongoose';
@@ -9,6 +10,8 @@ import {
 import { getAirQualityLevel } from '../shared/helpers/air-quality-level.helper';
 import { Model } from 'mongoose';
 import { IiqirProviderService } from '../shared/services/iqair-provider/iqair-provider-service.interface';
+import { IReverseGeocodingService } from '../shared/services/reverse-geocoding/reverse-geocoding-service.interface';
+import { CacheService } from '../shared/services/cache/cache.service';
 
 jest.mock('../shared/helpers/air-quality-level.helper');
 jest.mock('../shared/services/iqair-provider/iqair-provider.service');
@@ -16,8 +19,9 @@ jest.mock('../shared/services/iqair-provider/iqair-provider.service');
 describe('AirQualityService', () => {
   let service: AirQualityService;
   let airQualityRecordModel: Model<AirQualityRecordDocument>;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let iqAirProviderService: IiqirProviderService;
+  let reverseGeocodingService: IReverseGeocodingService;
+  let cacheService: CacheService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -51,6 +55,24 @@ describe('AirQualityService', () => {
             }),
           },
         },
+        {
+          provide: IReverseGeocodingService,
+          useValue: {
+            reverse: jest.fn().mockResolvedValue({
+              city: 'City',
+              state: 'Satate',
+              country: 'Country',
+            }),
+          },
+        },
+        {
+          provide: CacheService,
+          useValue: {
+            get: jest.fn(),
+            set: jest.fn(),
+            generateCacheKey: jest.fn().mockReturnValue('mockCacheKey'),
+          },
+        },
       ],
     }).compile();
 
@@ -60,6 +82,10 @@ describe('AirQualityService', () => {
     );
     iqAirProviderService =
       module.get<IiqirProviderService>(IiqirProviderService);
+    reverseGeocodingService = module.get<IReverseGeocodingService>(
+      IReverseGeocodingService,
+    );
+    cacheService = module.get<CacheService>(CacheService);
   });
 
   afterEach(() => {
@@ -69,26 +95,24 @@ describe('AirQualityService', () => {
   describe('getAQIDataForNearestCity', () => {
     it('[UNIT] should return air quality data', async () => {
       const mockResponse = {
-        data: {
-          data: {
-            current: {
-              pollution: {
-                aqius: 15,
-                mainus: 'p1',
-                aqicn: 10,
-                maincn: 'p1',
-              },
-            },
-          },
+        pollution: {
+          aqius: 15,
+          mainus: 'p1',
+          aqicn: 10,
+          maincn: 'p1',
         },
       };
-      const result = await service.getAQIDataForNearestCity({
-        lat: 40.7128,
-        lon: -74.006,
-      });
-
+      const result = await service.getAQIDataForNearestCity(
+        {
+          lat: 40.7128,
+          lon: -74.006,
+        },
+        // avoiding using cache
+        false,
+      );
+      console.log(JSON.stringify(result));
       expect(result.result.pollution).toEqual(
-        expect.objectContaining(mockResponse.data.data.current.pollution),
+        expect.objectContaining(mockResponse.pollution),
       );
       expect(result.result.pollution.ts).toBeInstanceOf(Date);
     });

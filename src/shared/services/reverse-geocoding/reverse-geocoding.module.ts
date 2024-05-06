@@ -6,4 +6,4 @@ import { ReverseGeocodingService } from './reverse-geocoding.service';
   providers: [ReverseGeocodingService],
   exports: [ReverseGeocodingService],
 })
-export class ExoApiProviderModule {}
+export class ReverseGeocodingModule {}

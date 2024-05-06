@@ -16,9 +16,9 @@ import { IAirQuality, IAirQualityResponse } from './air-quality.interface';
 import { CustomLogger } from '../shared/custom-logger/custom-logger.service';
 import { getAirQualityLevel } from '../shared/helpers/air-quality-level.helper';
 import { IiqirProviderService } from '../shared/services/iqair-provider/iqair-provider-service.interface';
-import { CacheService } from '@shared/services/cache/cache.service';
-import { IReverseGeocodingService } from '@shared/services/reverse-geocoding/reverse-geocoding-service.interface';
-import { IReverseGeocodingResponse } from '@shared/services/reverse-geocoding/reverse-geocoding-response.interface';
+import { CacheService } from '../shared/services/cache/cache.service';
+import { IReverseGeocodingService } from '../shared/services/reverse-geocoding/reverse-geocoding-service.interface';
+import { IReverseGeocodingResponse } from '../shared/services/reverse-geocoding/reverse-geocoding-response.interface';
 
 @Injectable()
 export class AirQualityService {
@@ -85,6 +85,7 @@ export class AirQualityService {
 
   async getAQIDataForNearestCity(
     airQualityQueryDto: AirQualityQueryDto,
+    useCache: boolean = true,
   ): Promise<IAirQualityResponse> {
     const logger = new CustomLogger(
       AirQualityService.name,
@@ -95,9 +96,9 @@ export class AirQualityService {
       const reverseGeocodingRes: IReverseGeocodingResponse =
         await this._reverseGeocodingService.reverse(airQualityQueryDto);
 
-      console.log(reverseGeocodingRes);
       // check if the data in the cache
       if (
+        useCache &&
         this._cacheService.get(
           this._cacheService.generateCacheKey(reverseGeocodingRes.city),
         )
