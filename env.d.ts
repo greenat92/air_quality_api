@@ -33,6 +33,9 @@ declare global {
 
       // custom api key
       API_KEY: string;
+
+      // app name
+      APP_NAME: string;
     }
   }
 }

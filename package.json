@@ -36,6 +36,7 @@
     "nest-commander": "^3.12.5",
     "nest-winston": "^1.9.4",
     "node-cache": "^5.1.2",
+    "nominatim-client": "^3.2.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.0",

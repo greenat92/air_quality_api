@@ -12,7 +12,7 @@ import { ConfigModule } from '@nestjs/config';
 import { Environment } from './shared/enums/env.enum';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
-const appName = 'air-quality-api';
+const appName = process.env.APP_NAME || 'air-quality-api';
 
 // load env variables stored in project root
 ConfigModule.forRoot({

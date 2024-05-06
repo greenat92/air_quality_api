@@ -18,6 +18,9 @@ import { IQAirProviderModule } from './shared/services/iqair-provider/iqair-prov
 import { IQAirProviderService } from './shared/services/iqair-provider/iqair-provider.service';
 import { IiqirProviderService } from './shared/services/iqair-provider/iqair-provider-service.interface';
 import { ConfigModule } from '@nestjs/config';
+import { ExoApiProviderModule } from '@shared/services/reverse-geocoding/reverse-geocoding.module';
+import { IReverseGeocodingService } from '@shared/services/reverse-geocoding/reverse-geocoding-service.interface';
+import { ReverseGeocodingService } from '@shared/services/reverse-geocoding/reverse-geocoding.service';
 
 // global module -> all DI mappings specified here are available in all modules
 @Global()
@@ -42,6 +45,7 @@ export class AppModule implements NestModule {
         MiddlewareModule,
         AxiosModule,
         IQAirProviderModule,
+        ExoApiProviderModule,
 
         // Mongoose Configuration
         MongooseModule.forRoot(uri),
@@ -55,10 +59,15 @@ export class AppModule implements NestModule {
           provide: IiqirProviderService,
           useClass: IQAirProviderService,
         },
+        {
+          provide: IReverseGeocodingService,
+          useClass: ReverseGeocodingService,
+        },
       ],
       exports: [
         // make DI mappings available to all modules
         IiqirProviderService,
+        IReverseGeocodingService,
       ],
     };
   }

@@ -16,6 +16,9 @@ import { IAirQuality, IAirQualityResponse } from './air-quality.interface';
 import { CustomLogger } from '../shared/custom-logger/custom-logger.service';
 import { getAirQualityLevel } from '../shared/helpers/air-quality-level.helper';
 import { IiqirProviderService } from '../shared/services/iqair-provider/iqair-provider-service.interface';
+import { CacheService } from '@shared/services/cache/cache.service';
+import { IReverseGeocodingService } from '@shared/services/reverse-geocoding/reverse-geocoding-service.interface';
+import { IReverseGeocodingResponse } from '@shared/services/reverse-geocoding/reverse-geocoding-response.interface';
 
 @Injectable()
 export class AirQualityService {
@@ -24,6 +27,9 @@ export class AirQualityService {
     private readonly airQualityRecordModel: Model<AirQualityRecordDocument>,
     @Inject(IiqirProviderService)
     private readonly _IQAirProviderService: IiqirProviderService,
+    @Inject(IReverseGeocodingService)
+    private readonly _reverseGeocodingService: IReverseGeocodingService,
+    private readonly _cacheService: CacheService,
   ) {}
 
   async findOneByTsAndCity(
@@ -85,13 +91,39 @@ export class AirQualityService {
       this.getAQIDataForNearestCity.name,
     );
     try {
-      // todo: get cache data from cache
+      // reveser geocode
+      const reverseGeocodingRes: IReverseGeocodingResponse =
+        await this._reverseGeocodingService.reverse(airQualityQueryDto);
+
+      console.log(reverseGeocodingRes);
+      // check if the data in the cache
+      if (
+        this._cacheService.get(
+          this._cacheService.generateCacheKey(reverseGeocodingRes.city),
+        )
+      ) {
+        logger.log('get data from the cache');
+        return {
+          result: {
+            pollution: this._cacheService.get(
+              this._cacheService.generateCacheKey(reverseGeocodingRes.city),
+            ),
+          },
+        };
+      }
+
+      // get data from the api
       const res =
         await this._IQAirProviderService.getAirQualityDataFromIQAirProvider(
           airQualityQueryDto,
         );
       logger.log('get data from the api');
       const pollution = res.data?.data?.current?.pollution;
+      // set cache
+      this._cacheService.set(
+        this._cacheService.generateCacheKey(reverseGeocodingRes.city),
+        pollution,
+      );
       logger.log('success');
       return { result: { pollution } };
     } catch (error) {
@@ -186,7 +218,6 @@ export class AirQualityService {
       this.getAQIDataForNearestCity.name,
     );
     try {
-      // todo: get cache data from cache in case of less then one hour cron job
       const res =
         await this._IQAirProviderService.getAirQualityDataFromIQAirProvider(
           airQualityQueryDto,

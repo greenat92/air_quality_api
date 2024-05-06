@@ -12,7 +12,7 @@ too_many_requests: returned when more than 10 calls per second are made.
 
 */
 
-// todo hould be used or removed
+// todo hould be used when calling api
 export enum AirQualityAPICodesEnum {
   Success = 'success',
   Fail = 'fail',
