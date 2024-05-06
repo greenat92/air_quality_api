@@ -12,9 +12,12 @@ import {
   AirQualityRecordDocument,
 } from './air-quality.entity';
 import { AirQualityQueryDto, CityQueryDto } from './air-quality.dto';
-import { IAirQuality, IAirQualityResponse } from './air-quality.interface';
+import {
+  IAirQuality,
+  IAirQualityResponse,
+  IMostPollutedTime,
+} from './air-quality.interface';
 import { CustomLogger } from '../shared/custom-logger/custom-logger.service';
-import { getAirQualityLevel } from '../shared/helpers/air-quality-level.helper';
 import { IiqirProviderService } from '../shared/services/iqair-provider/iqair-provider-service.interface';
 import { CacheService } from '../shared/services/cache/cache.service';
 import { IReverseGeocodingService } from '../shared/services/reverse-geocoding/reverse-geocoding-service.interface';
@@ -154,40 +157,57 @@ export class AirQualityService {
     );
     try {
       // based on a city Name that already stored in our database we can  get the time where is the most polluted
-      const pollutedZoneTime: AirQualityRecordDocument[] =
-        await this.airQualityRecordModel
-          .find()
-          .where({
-            city: {
-              $eq: cityQueryDto.city,
-            },
-          })
-          .sort({ aqius: -1, ts: -1 })
-          .limit(1)
-          .exec();
+      // const pollutedZoneTime: AirQualityRecordDocument[] =
+      //   await this.airQualityRecordModel
+      //     .find()
+      //     .where({
+      //       city: {
+      //         $eq: cityQueryDto.city,
+      //       },
+      //     })
+      //     .sort({ aqius: -1, ts: -1 })
+      //     .limit(1)
+      //     .exec();
 
-      logger.log('success');
+      // another promising query using aggregation
+      const pollutedZoneTime: IMostPollutedTime[] =
+        await this.airQualityRecordModel.aggregate([
+          // Match records for Paris city
+          {
+            $match: {
+              city: {
+                $eq: cityQueryDto.city,
+              },
+            },
+          },
+          // Group by timestamp and find the maximum pollution level
+          {
+            $group: {
+              _id: '$ts',
+              maxPollution: { $max: '$aqius' }, // Assuming you want to find the maximum AQI for simplicity
+            },
+          },
+          // Sort by pollution level in descending order
+          { $sort: { maxPollution: -1 } },
+          // Limit to one result to get the most polluted time
+          { $limit: 1 },
+        ]);
       const res =
-        pollutedZoneTime.length > 0
-          ? pollutedZoneTime[0]
+        pollutedZoneTime && pollutedZoneTime.length > 0
+          ? {
+              maxPollution: pollutedZoneTime[0].maxPollution,
+              ts: pollutedZoneTime[0]._id,
+            }
           : {
               // default response
-              aqius: -1,
+              maxPollution: -1,
               ts: '-',
-              city: '-',
-              location: {},
-              airQualityLevel: '-',
-              mainus: '-',
             };
-      const airQualityLevel = getAirQualityLevel(res?.aqius);
+      logger.log('success');
       return {
         result: {
-          airQualityLevel,
-          ts: res?.ts,
-          aqius: res?.aqius,
-          mainus: res?.mainus,
-          city: res?.city,
-          location: res?.location,
+          ts: res.ts!,
+          maxPollution: res?.maxPollution,
         },
       };
     } catch (error) {

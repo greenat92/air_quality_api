@@ -33,6 +33,7 @@ describe('AirQualityService', () => {
             findOne: jest.fn(),
             find: jest.fn(),
             save: jest.fn(),
+            aggregate: jest.fn(),
           },
         },
         {
@@ -130,19 +131,17 @@ describe('AirQualityService', () => {
     it('[UNIT] should return most polluted zone time', async () => {
       const mockResponse = [
         {
-          aqius: 36,
-          ts: new Date(),
-          city: 'Paris',
-          location: {},
-          mainus: 'p1',
+          maxPollution: -1,
+          ts: '-',
         },
       ];
 
-      (airQualityRecordModel.find as jest.Mock).mockReturnValue({
-        where: jest.fn().mockReturnValue({
-          sort: jest.fn().mockReturnValue({
-            limit: jest.fn().mockReturnValue({
-              exec: jest.fn().mockResolvedValue(mockResponse),
+      (airQualityRecordModel.aggregate as jest.Mock).mockReturnValue({
+        // Match stage
+        match: jest.fn().mockReturnValue({
+          groupe: jest.fn().mockReturnValue({
+            sort: jest.fn().mockReturnValue({
+              limit: jest.fn().mockResolvedValue(mockResponse),
             }),
           }),
         }),
@@ -153,12 +152,8 @@ describe('AirQualityService', () => {
       });
       expect(result).toEqual({
         result: {
-          airQualityLevel: getAirQualityLevel(mockResponse[0].aqius),
           ts: mockResponse[0].ts,
-          aqius: mockResponse[0].aqius,
-          mainus: mockResponse[0].mainus,
-          city: mockResponse[0].city,
-          location: mockResponse[0].location,
+          maxPollution: mockResponse[0].maxPollution,
         },
       });
     });

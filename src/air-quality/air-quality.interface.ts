@@ -22,3 +22,8 @@ export interface IPollution {
 export interface IAirQualityResponse {
   result: { pollution: IPollution };
 }
+
+export interface IMostPollutedTime {
+  maxPollution: number;
+  _id: string;
+}

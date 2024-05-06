@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ILocation } from '../air-quality.entity';
 
 export class PollutionResponseDto {
   @ApiProperty({
@@ -35,26 +34,5 @@ export class MostPollutedResponseDto {
     example: 114,
     description: 'AQI (Air Quality Index) in the US',
   })
-  aqius: number;
-
-  @ApiProperty({ example: 'p2', description: 'Main pollutant in the US' })
-  mainus: string;
-
-  @ApiProperty({
-    example: 'Goode ....',
-    description: 'air quality level based on aqius',
-  })
-  airQualityLevel: string;
-
-  @ApiProperty({
-    example: 'City',
-    description: 'city',
-  })
-  city: string;
-
-  @ApiProperty({
-    example: 'location: {type: "Point",coordinates: number[]}',
-    description: 'Main pollutant in China',
-  })
-  location: ILocation;
+  maxPollution: number;
 }
