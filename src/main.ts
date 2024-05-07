@@ -40,7 +40,7 @@ async function bootstrap() {
 
   if (process.env.APP_ENV == Environment.Local) {
     // on localhost, pretty print the log messages using the nest-libraries
-    // ! this must only be applied on localhost execution, otherwise this will screw up our logging-extension on Heroku
+    // ! this must only be applied on localhost execution, otherwise this will screw up our logging-extension.
     winstonFormats.push(
       utilities.format.nestLike(appName, { prettyPrint: true }),
     );
